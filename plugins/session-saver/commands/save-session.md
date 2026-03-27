@@ -1,8 +1,3 @@
----
-description: Save current session state and prepare to resume from any device. Use when ending a work session, switching computers, or before closing Claude Code.
-disable-model-invocation: true
----
-
 # Save Session
 
 Save the current work context so it can be fully restored with `/resume-{folder}` — on any device, at any time.

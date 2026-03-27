@@ -17,7 +17,7 @@ Claude Code stores session history locally in `~/.claude/sessions/`. This create
 
 | Command | Scope | What it does |
 |---------|-------|-------------|
-| `/session-saver:save-session` | Global (plugin) | Save context + generate `/resume-{folder}` + push |
+| `/save-session` | Global (plugin) | Save context + generate `/resume-{folder}` + push |
 | `/resume-{folder}` | Project-local (auto-generated) | Auto-pull + restore full context |
 
 ## Installation
@@ -34,7 +34,7 @@ Requires [Claude Code](https://claude.com/claude-code) v1.0.33 or later.
 ### Save (before leaving)
 
 ```
-/session-saver:save-session
+/save-session
 ```
 
 This will:
@@ -72,7 +72,7 @@ No need to manually `git pull`. The resume command handles it.
 ```
 Device A                              Device B
   |                                     |
-  |-- /session-saver:save-session       |
+  |-- /save-session       |
   |     |-- commit changes              |
   |     |-- write SESSION-STATE.md      |
   |     |-- generate /resume-{folder}   |
