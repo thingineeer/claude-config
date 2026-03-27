@@ -19,4 +19,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Claude Code plugin marketplace support
 - MIT license
 
-[1.0.0]: https://github.com/thingineeer/claude-config/releases/tag/v1.0.0
+[1.0.0]: https://github.com/thingineeer/claude-session-tools/releases/tag/v1.0.0

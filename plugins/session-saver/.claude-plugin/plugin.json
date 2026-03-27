@@ -5,8 +5,8 @@
   "author": {
     "name": "thingineeer"
   },
-  "homepage": "https://github.com/thingineeer/claude-config",
-  "repository": "https://github.com/thingineeer/claude-config",
+  "homepage": "https://github.com/thingineeer/claude-session-tools",
+  "repository": "https://github.com/thingineeer/claude-session-tools",
   "license": "MIT",
   "keywords": ["session", "save", "resume", "sync", "context", "workflow"]
 }
