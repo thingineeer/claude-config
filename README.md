@@ -2,6 +2,8 @@
 
 > Save and restore [Claude Code](https://claude.com/claude-code) sessions across devices. Never lose your work context again.
 
+If this plugin saved your time, consider giving it a [star](https://github.com/thingineeer/claude-config).
+
 ## The Problem
 
 Claude Code stores session history locally in `~/.claude/sessions/`. This creates two problems:
