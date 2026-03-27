@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Save and restore Claude Code sessions across devices. Never lose your work context again.",
-    "version": "1.0.0"
+    "version": "1.0.1"
   },
   "plugins": [
     {
       "name": "session-saver",
       "source": "./plugins/session-saver",
       "description": "Save session state and resume from any device",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "keywords": ["session", "save", "resume", "sync", "context", "workflow"],
       "category": "productivity"
     }
