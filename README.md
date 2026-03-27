@@ -24,10 +24,27 @@ Claude Code stores session history locally in `~/.claude/sessions/`. This create
 
 Requires [Claude Code](https://claude.com/claude-code) v1.0.33 or later.
 
+### Option 1: Prompt
+
+Paste the following prompt into Claude Code — it will automatically install the plugin while preserving your existing settings:
+
 ```
-/plugin marketplace add thingineeer/claude-session-tools
-/plugin install session-saver@claude-session-tools
+Add the following to ~/.claude/settings.json without removing any existing settings:
+
+In enabledPlugins:
+  "session-saver@claude-session-tools": true
+
+In extraKnownMarketplaces:
+  "claude-session-tools": { "source": { "source": "github", "repo": "thingineeer/claude-session-tools" } }
 ```
+
+### Option 2: Plugin menu
+
+```
+/plugins → Add marketplace → thingineeer/claude-session-tools → Install session-saver
+```
+
+Restart Claude Code after installation. That's it.
 
 ## Usage
 
