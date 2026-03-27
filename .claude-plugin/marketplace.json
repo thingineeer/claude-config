@@ -1,0 +1,21 @@
+{
+  "name": "claude-session-tools",
+  "owner": {
+    "name": "thingineeer",
+    "email": "dlaudwls1203@gmail.com"
+  },
+  "metadata": {
+    "description": "Save and restore Claude Code sessions across devices. Never lose your work context again.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "session-saver",
+      "source": "./plugins/session-saver",
+      "description": "Save session state and resume from any device",
+      "version": "1.0.0",
+      "keywords": ["session", "save", "resume", "sync", "context", "workflow"],
+      "category": "productivity"
+    }
+  ]
+}
