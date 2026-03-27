@@ -1,6 +1,6 @@
 {
   "name": "session-saver",
-  "description": "Save and restore Claude Code sessions across devices",
+  "description": "Save and restore Claude Code sessions across devices. Creates a SESSION-STATE.md save point and a /resume command so you can pick up exactly where you left off — on any machine.",
   "version": "1.0.0",
   "author": {
     "name": "thingineeer"
@@ -8,5 +8,5 @@
   "homepage": "https://github.com/thingineeer/claude-config",
   "repository": "https://github.com/thingineeer/claude-config",
   "license": "MIT",
-  "keywords": ["session", "save", "resume", "sync", "workflow"]
+  "keywords": ["session", "save", "resume", "sync", "context", "workflow"]
 }

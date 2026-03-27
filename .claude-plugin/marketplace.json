@@ -12,9 +12,9 @@
     {
       "name": "session-saver",
       "source": "./plugins/session-saver",
-      "description": "Save session state and resume from any device — /session-saver:save-session",
+      "description": "Save session state and resume from any device",
       "version": "1.0.0",
-      "keywords": ["session", "save", "resume", "sync", "workflow"],
+      "keywords": ["session", "save", "resume", "sync", "context", "workflow"],
       "category": "productivity"
     }
   ]

@@ -3,160 +3,166 @@ description: Save current session state and prepare to resume from any device. U
 disable-model-invocation: true
 ---
 
-# /save-session — Save & Resume from Any Device
+# Save Session
 
-Save the current work context completely so you can resume from any device — even after restarting the app.
+Save the current work context so it can be fully restored with `/resume-{folder}` — on any device, at any time.
 
 ## Core Principle
 
-Session history (`~/.claude/sessions/`) is local and cannot be transferred between devices.
-Therefore, **context must be fully reconstructable from git-committed files**.
+Claude Code session history (`~/.claude/sessions/`) is local and unreliable — it cannot transfer between devices, and even on the same machine `claude --continue` / `--resume` can fail when session files become stale or lost. This skill saves context as **git-committed files** that can reconstruct the full working state anywhere, regardless of local session state.
 
-Three things needed for restoration:
-1. `docs/checkpoints/SESSION-STATE.md` — Current work state snapshot
-2. `.claude/commands/resume-{folder}.md` — Automated context restoration command
-3. The code itself — Latest code pushed in a clean state
+## Steps
 
-## Execution Steps
-
-### 1. Check Git Status + Clean Staging
+### 1. Git status check
 
 ```bash
 git status
 git diff --stat
 ```
 
-If there are unstaged changes, commit them all.
-- Separate commits by logical units (no single bulk commit)
-- Restore auto-generated files (Derived/, xcodeproj, node_modules, etc.)
+- Commit all unstaged changes, split by logical unit
+- Restore auto-generated files (`Derived/`, `*.xcodeproj`, `node_modules/`, `build/`, etc.) — do not commit them
+- Never commit files that may contain secrets (`.env`, `credentials.json`, `*.pem`, `*.key`)
 
-### 2. Clean Up Worktrees
+### 2. Worktree cleanup
 
 ```bash
 git worktree list
 ```
 
-- Completed worktrees → commit and remove
-- In-progress worktrees → record in SESSION-STATE.md
+- Completed worktrees: merge/commit changes, then remove
+- In-progress worktrees: record state in SESSION-STATE.md
 
-### 3. Clean Up Auto Memory
+### 3. Auto memory cleanup
 
-Check the current project's auto memory.
+Review the current project's auto memory (`~/.claude/projects/<project>/memory/`).
 
-- Outdated or incorrect memories → delete/fix
-- Key discoveries from this session → save to memory
-- Keep MEMORY.md under 200 lines
+- Remove outdated or incorrect entries
+- Save key discoveries from this session
+- Keep `MEMORY.md` under 200 lines (split into topic files if needed)
 
-### 4. Write SESSION-STATE.md (Critical)
+### 4. Write SESSION-STATE.md
 
-Write `docs/checkpoints/SESSION-STATE.md` with current state.
-This file is the **save point** — reading this alone should give full context on any device.
-
-Required contents:
+Create or update `docs/checkpoints/SESSION-STATE.md`. This is the **save point** — anyone reading this file should fully understand the current state.
 
 ```markdown
 # Session State — {project name}
 
 ## Date
-{YYYY-MM-DD}
+YYYY-MM-DD
 
-## Current Branch
+## Branch
 {branch name}
 
-## Completed Work
-- [x] Task 1 description
-- [x] Task 2 description
+## Completed
+- [x] Description of completed task
+- [x] Description of completed task
 
 ## In Progress
-- What was being worked on (specific)
-- How far along (file:line level)
-- What to do immediately next
+- What was being worked on (be specific)
+- Progress so far (file:line level detail)
+- Immediate next step
 
-## Remaining Work
-- TODO 1
-- TODO 2
+## Remaining
+- TODO item
+- TODO item
 
-## Key Files (read these first to understand context)
-- path/to/file1 — role description
-- path/to/file2 — role description
+## Key Files
+Files to read first for full context:
+- path/to/file — what it does
+- path/to/file — what it does
 
-## Notes / Things to Know
-- Environment variables or settings needed for build
-- Known issues
-- Dependency changes
+## Notes
+- Required environment variables or build config
+- Known issues or blockers
+- Recent dependency changes
 ```
 
-### 5. Write /resume-{folder} Command (Critical)
+### 5. Create /resume-{folder} command
 
-Write `.claude/commands/resume-{folder}.md` for the project.
-When this command runs, context should be restored **as if picking up right where you left off**.
+Create or update `.claude/commands/resume-{folder}.md` in the project, where `{folder}` is the current directory name.
+
+This command is **project-local** — it lives in the project repo and knows exactly which files to read.
+
+The generated file must contain:
 
 ```markdown
-# Session Restore — {project name}
+# Resume — {project name}
 
-Read the following files in order to understand current state.
+## 1. Sync with remote
+Run git fetch. If the local branch is behind, run git pull.
+If diverged, warn the user — do NOT force pull.
 
-## 1. Check Project Rules
+## 2. Project rules
 @CLAUDE.md
 
-## 2. Restore Work State
+## 3. Work state
 @docs/checkpoints/SESSION-STATE.md
 
-## 3. Check Git Status
+## 4. Git status
 Run: git status, git log --oneline -5, git branch
 
-## 4. Read Key Files
-Read files listed in SESSION-STATE.md's "Key Files" section.
+## 5. Key files
+Read all files listed in the "Key Files" section of SESSION-STATE.md.
 
-## 5. Check Build Environment
-Verify build/test commands for the project
+## 6. Build environment
+Verify build and test commands work.
 
-## 6. Output Briefing
-Summarize current state in this format:
+## 7. Briefing
+Print:
 
 ---
 **Project**: {name}
 **Branch**: {branch}
-**Completed**: {summary of completed items}
-**In Progress**: {what was being worked on}
-**Next**: {task to start immediately}
+**Done**: {completed items}
+**Current**: {in-progress work}
+**Next**: {immediate next task}
 ---
 
 Ask: "Ready to continue?"
 ```
 
-### 6. Commit + Push
+### 6. Commit and push
 
-Commit all changes including SESSION-STATE.md and resume command.
-Until staging is clean:
-1. Add changed files
-2. Commit (conventional commits)
-3. Push
+Commit everything (SESSION-STATE.md + resume command):
 
-### 7. Final Check + Guidance
+1. Stage changed files
+2. Commit with conventional commit messages
+3. Push to current branch
+
+### 7. Final verification
 
 ```bash
-git status  # "nothing to commit, working tree clean"
+git status   # must show: "nothing to commit, working tree clean"
 git log --oneline -5
 ```
 
-Output:
+Print:
 
 ```
 Session saved!
 
-To continue on the same device:
-  claude --continue
-
-To continue on another device:
-  git pull && claude
-  → /resume-{folder}
+To restore (any device, any time):
+  /resume-{folder}
 ```
 
+## Supported Scenarios
+
+| Scenario | How it works |
+|----------|-------------|
+| Device A → Device B (immediately) | `/resume-{folder}` on B — auto pulls |
+| Device A → days later → Device B | Same — save point doesn't expire |
+| Device A → days later → Device A | Same — fetches latest, restores from git |
+| Device A → restart app → Device A | Same command works |
+
+The save point is a git-committed file. It does not expire.
+
 ## Rules
-- Staging must be left in a clean state
-- Push to the current branch (whether main or feature)
-- Auto-generated files must not be committed (restore them)
-- SESSION-STATE.md must be detailed enough for **anyone** to fully understand current state
-- Resume command must **auto-read key files** to make context immediately available
-- Save/Load flow: save-session → push → (other device) pull → /resume-{folder}
+
+- Working tree must be clean after save
+- Push to current branch (main or feature)
+- Never commit auto-generated files — restore them instead
+- Never commit secrets (`.env`, credentials, keys)
+- SESSION-STATE.md must be detailed enough for **anyone** to understand the full context
+- The resume command must include auto-pull so the user never has to `git pull` manually
+- Flow: `/session-saver:save-session` → (any device, any time) → `/resume-{folder}`
