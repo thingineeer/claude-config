@@ -17,8 +17,10 @@ Claude Code stores session history locally in `~/.claude/sessions/`. This create
 
 | Command | Scope | What it does |
 |---------|-------|-------------|
-| `/save-session` | Global (plugin) | Save context + generate `/resume-{folder}` + push |
+| `/session-saver:save-session` | Global (plugin) | Save context + generate `/resume-{folder}` + push |
 | `/resume-{folder}` | Project-local (auto-generated) | Auto-pull + restore full context |
+
+> **Note**: Plugin skills are namespaced as `/plugin-name:skill-name` per Claude Code convention. The resume command is generated as a project-local skill, so it uses the short `/resume-{folder}` form.
 
 ## Installation
 
@@ -51,14 +53,14 @@ Restart Claude Code after installation. That's it.
 ### Save (before leaving)
 
 ```
-/save-session
+/session-saver:save-session
 ```
 
 This will:
 1. Commit all pending changes (split by logical unit)
 2. Clean up worktrees and auto memory
 3. Create `docs/checkpoints/SESSION-STATE.md` with full context
-4. Generate `.claude/commands/resume-{folder}.md` for the project
+4. Generate `.claude/skills/resume-{folder}/SKILL.md` for the project
 5. Push everything to remote
 
 ### Restore (any device, any time)
@@ -87,22 +89,22 @@ No need to manually `git pull`. The resume command handles it.
 ## How It Works
 
 ```
-Device A                              Device B
-  |                                     |
-  |-- /save-session       |
-  |     |-- commit changes              |
-  |     |-- write SESSION-STATE.md      |
-  |     |-- generate /resume-{folder}   |
-  |     |-- push                        |
-  |                                     |
-  |            git push ────────>       |
-  |                                     |
-  |                                     |-- /resume-{folder}
-  |                                     |     |-- git fetch + auto pull
-  |                                     |     |-- read CLAUDE.md
-  |                                     |     |-- read SESSION-STATE.md
-  |                                     |     |-- read key files
-  |                                     |     |-- print briefing
+Device A                                    Device B
+  |                                           |
+  |-- /session-saver:save-session             |
+  |     |-- commit changes                    |
+  |     |-- write SESSION-STATE.md            |
+  |     |-- generate /resume-{folder} skill   |
+  |     |-- push                              |
+  |                                           |
+  |              git push ────────>           |
+  |                                           |
+  |                                           |-- /resume-{folder}
+  |                                           |     |-- git fetch + auto pull
+  |                                           |     |-- read CLAUDE.md
+  |                                           |     |-- read SESSION-STATE.md
+  |                                           |     |-- read key files
+  |                                           |     |-- print briefing
 ```
 
 ### What gets saved
@@ -110,13 +112,19 @@ Device A                              Device B
 | File | Purpose |
 |------|---------|
 | `docs/checkpoints/SESSION-STATE.md` | Save point — branch, progress, key files, next steps |
-| `.claude/commands/resume-{folder}.md` | Restore command — auto-pull + context rebuild |
+| `.claude/skills/resume-{folder}/SKILL.md` | Restore skill — auto-pull + context rebuild |
 
 ### What does NOT get saved
 
 - Session conversation history (stays local)
 - Secrets, credentials, `.env` files (excluded by design)
 - Auto-generated files (`node_modules/`, `Derived/`, `build/`)
+
+## Migration from v1.0.x
+
+If you used v1.0.x, the resume command was generated as `.claude/commands/resume-{folder}.md`. Starting from v1.1.0, it is generated as `.claude/skills/resume-{folder}/SKILL.md` instead.
+
+Running `/session-saver:save-session` on a project with an old-style command will automatically migrate it to the new skill format and delete the legacy command file.
 
 ## Customization
 
