@@ -1,4 +1,5 @@
 ---
+name: save-session
 description: Save current session state and prepare to resume from any device. Use when ending a work session, switching computers, or before closing Claude Code.
 disable-model-invocation: true
 ---
@@ -78,15 +79,21 @@ Files to read first for full context:
 - Recent dependency changes
 ```
 
-### 5. Create /resume-{folder} command
+### 5. Create resume skill (project-local)
 
-Create or update `.claude/commands/resume-{folder}.md` in the project, where `{folder}` is the current directory name.
+Create or update `.claude/skills/resume-{folder}/SKILL.md` in the project, where `{folder}` is the current directory name.
 
-This command is **project-local** — it lives in the project repo and knows exactly which files to read.
+This skill is **project-local** — it lives in the project repo and knows exactly which files to read. Users invoke it as `/resume-{folder}`.
 
-The generated file must contain:
+The generated `SKILL.md` file must contain:
 
 ```markdown
+---
+name: resume-{folder}
+description: Resume {project name} session — auto-pulls, reads save point, and prints briefing.
+disable-model-invocation: true
+---
+
 # Resume — {project name}
 
 ## 1. Sync with remote
@@ -125,15 +132,23 @@ Print:
 Ask: "Ready to continue?"
 ```
 
-### 6. Commit and push
+### 6. Migrate legacy commands (if present)
 
-Commit everything (SESSION-STATE.md + resume command):
+If `.claude/commands/resume-{folder}.md` exists from a previous version, migrate it:
+
+1. Create `.claude/skills/resume-{folder}/SKILL.md` with the content above
+2. Delete `.claude/commands/resume-{folder}.md`
+3. Commit the migration
+
+### 7. Commit and push
+
+Commit everything (SESSION-STATE.md + resume skill):
 
 1. Stage changed files
 2. Commit with conventional commit messages
 3. Push to current branch
 
-### 7. Final verification
+### 8. Final verification
 
 ```bash
 git status   # must show: "nothing to commit, working tree clean"
@@ -168,5 +183,5 @@ The save point is a git-committed file. It does not expire.
 - Never commit auto-generated files — restore them instead
 - Never commit secrets (`.env`, credentials, keys)
 - SESSION-STATE.md must be detailed enough for **anyone** to understand the full context
-- The resume command must include auto-pull so the user never has to `git pull` manually
-- Flow: `/save-session` → (any device, any time) → `/resume-{folder}`
+- The resume skill must include auto-pull so the user never has to `git pull` manually
+- Flow: `/session-saver:save-session` → (any device, any time) → `/resume-{folder}`
